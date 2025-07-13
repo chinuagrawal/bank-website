@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>New Enquiry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f5f6fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .form-container {
+      background: #fff;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 25px;
+      color: #4a148c;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    select, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      background-color: #4a148c;
+      color: #fff;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background-color: #6a1b9a;
+    }
+  </style>
+</head>
+<body>
+  <form class="form-container" id="enquiry-form">
+    <h2>New Enquiry</h2>
+
+    <!-- Source -->
+    <label for="source">Source </label>
+    <select id="source" name="source" required>
+      <option value="" disabled selected>Select Source</option>
+      <option value="Internal BDM Team">Internal BDM Team</option>
+      <option value="Exclusive Channel Partner">Exclusive Channel Partner</option>
+      <option value="Direct">Direct</option>
+      <option value="Other">Other</option>
+    </select>
+    <input type="text" id="source-other" name="sourceOther" placeholder="Specify other source" class="hidden"/>
+
+    <!-- Sourcing RM -->
+    <label for="sourcing-rm">Sourcing RM *</label>
+    <select id="sourcing-rm" name="sourcingRm" required>
+      <option value="" disabled selected>Select RM</option>
+      <option value="RM A">Team A</option>
+      <option value="RM B">Team B</option>
+      <option value="RM C">Team C</option>
+      
+    </select>
+
+    <!-- Business Stage -->
+    <label for="business-stage">Business Stage</label>
+    <select id="business-stage" name="businessStage">
+      <option value="" disabled selected>Select Stage</option>
+      <option value="Hot Proposals">Hot Proposals</option>
+      <option value="Under Evaluation">Under Evaluation</option>
+      <option value="Term Sheet Initiated">Term Sheet Initiated</option>
+      <option value="IC Note & Due Diligence">IC Note & Due Diligence</option>
+      <option value="Sanctioned">Sanctioned</option>
+      <option value="Loan Rejected">Loan Rejected</option>
+    </select>
+
+    <button type="submit">Submit Enquiry</button>
+  </form>
+
+  <script>
+    // Show "Other" textbox if "Other" is selected in Source
+    const sourceSelect = document.getElementById('source');
+    const otherInput = document.getElementById('source-other');
+
+    sourceSelect.addEventListener('change', () => {
+      otherInput.classList.toggle('hidden', sourceSelect.value !== 'Other');
+    });
+
+    // Submission Handler
+    document.getElementById("enquiry-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+      const data = {
+        source: sourceSelect.value === 'Other' ? otherInput.value : sourceSelect.value,
+        sourcingRm: document.getElementById("sourcing-rm").value,
+        businessStage: document.getElementById("business-stage").value,
+      };
+      console.log("Form submitted:", data);
+
+      // You can send this data to backend here later with fetch()
+      alert("Enquiry submitted!");
+    });
+  </script>
+</body>
+</html>
