@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
@@ -19,11 +18,12 @@ mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB connected'))
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
-// Models & Routes
+// Routes
+const enquiryRoutes = require('./routes/enquiry');
+app.use('/api/enquiry', enquiryRoutes);  // ✅ Correct route mount
 
-const User = require('./models/User');
 const authRoutes = require('./routes/auth');
-app.use('/api', authRoutes);
+app.use('/api', authRoutes);             // ✅ OK for /api/login etc.
 
 // Start Server
 app.listen(PORT, () => {
