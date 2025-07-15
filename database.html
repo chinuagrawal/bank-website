@@ -51,7 +51,7 @@
         const tableBody = document.getElementById("enquiry-table-body");
         tableBody.innerHTML = data.map(row => `
           <tr>
-            <td>${row.loanApplicationNumber}</td>
+            <td><a href="enquiry-details.html?lan=${row.loanApplicationNumber}">${row.loanApplicationNumber}</a></td>
             <td>${new Date(row.loanApplicationDate).toLocaleDateString()}</td>
             <td>${row.loanType}</td>
             <td>${row.purpose || '-'}</td>

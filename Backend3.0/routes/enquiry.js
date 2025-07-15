@@ -3,6 +3,17 @@ const router = express.Router();
 const Enquiry = require('../models/Enquiry');
 const { v4: uuidv4 } = require('uuid');
 
+// GET /api/enquiry/:loanApplicationNumber
+router.get('/:loanApplicationNumber', async (req, res) => {
+  try {
+    const enquiry = await Enquiry.findOne({ loanApplicationNumber: req.params.loanApplicationNumber });
+    if (!enquiry) return res.status(404).json({ message: 'Enquiry not found' });
+    res.json(enquiry);
+  } catch (error) {
+    console.error('Error fetching enquiry:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 
