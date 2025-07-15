@@ -14,7 +14,14 @@ router.post('/', async (req, res) => {
     loanApplicationDate,
     loanApplicationNumber,
     loanType,
-    purpose
+    purpose,
+    firstName,
+    middleName,
+    lastName,
+    phNumber,
+    IFSCCode,
+    bankName,
+
   } = req.body;
 
   try {
@@ -25,7 +32,13 @@ router.post('/', async (req, res) => {
       loanApplicationDate,
       loanApplicationNumber,
       loanType,
-      purpose
+      purpose,
+      firstName,
+      middleName,
+      lastName,
+      phNumber,
+      IFSCCode,
+      bankName,
     });
 
     await newEnquiry.save();

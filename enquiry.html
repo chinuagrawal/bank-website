@@ -11,7 +11,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      height: 200vh;
     }
 
     .form-container {
@@ -76,7 +76,8 @@
     <h2>New Enquiry</h2>
 
     <!-- Source -->
-    <h3>Source</h3>
+    <h3>BDM Details</h3>
+    <label for="source">Source</label>
     <select id="source" name="source" required>
       <option value="" disabled selected>Select Source</option>
       <option value="Internal BDM Team">Internal BDM Team</option>
@@ -87,7 +88,7 @@
     <input type="text" id="source-other" name="sourceOther" placeholder="Specify other source" class="hidden"/>
 
     <!-- Sourcing RM -->
-    <label for="sourcing-rm">Sourcing RM *</label>
+    <label for="sourcing-rm">Sourcing RM</label>
     <select id="sourcing-rm" name="sourcingRm" required>
       <option value="" disabled selected>Select RM</option>
       <option value="Team A">Team A</option>
@@ -114,7 +115,7 @@
     <label for="loan-application-date">Loan Application Date</label>
     <input type="date" id="loan-application-date" name="loanApplicationDate" required />
 
-    <!-- Loan Application Number (Now editable) -->
+    <!-- Loan Application Number  -->
     <label for="loan-application-number">Loan Application Number</label>
     <input type="text" id="loan-application-number" name="loanApplicationNumber" placeholder="Enter Application Number" required />
 
@@ -140,6 +141,23 @@
     <label for="purpose">Purpose</label>
     <input type="text" id="purpose" name="purpose" placeholder="Enter purpose" />
 
+<h3>Contact Details</h3>
+    <label for="first-name">First name</label>
+     <input type="text" id="first-name" name="firstName" placeholder="first name" required />
+    <label for="middle-name">Middle name</label>
+     <input type="text" id="middle-name" name="middleName" placeholder="middle name" />
+    <label for="last-name">Last name</label>
+    <input type="text" id="last-name" name="lastName" placeholder="last name" />
+    <label for="ph-number">Phone number</label>
+    <input type="text" id="ph-number" name="phNumber" placeholder="Phone number" />
+    
+    <h3>Bank Details</h3>
+    <label for="IFSC-code">IFSC Code</label>
+    <input type="text" id="IFSC-code" name="IFSCCode" placeholder="IFSC Code" required/>
+    <label for="bank-name">Bank Name</label>
+    <input type="text" id="bank-name" name="bankName" placeholder="BankName" required/>
+
+
     <button type="submit">Submit Enquiry</button>
   </form>
 
@@ -161,7 +179,15 @@
         loanApplicationDate: document.getElementById("loan-application-date").value,
         loanApplicationNumber: document.getElementById("loan-application-number").value,
         loanType: document.getElementById("loan-type").value,
-        purpose: document.getElementById("purpose").value
+        purpose: document.getElementById("purpose").value,
+        firstName: document.getElementById("first-name").value,
+        middleName: document.getElementById("middle-name").value,
+        lastName: document.getElementById("last-name").value,
+        phNumber: document.getElementById("ph-number").value,
+        IFSCCode: document.getElementById("IFSC-code").value,
+        bankName: document.getElementById("bank-name").value,
+        
+
       };
 
       fetch("http://localhost:3000/api/enquiry", {

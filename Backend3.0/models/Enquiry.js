@@ -11,6 +11,14 @@ const enquirySchema = new mongoose.Schema({
   loanApplicationNumber: String,
   loanType: String,
   purpose: String,
+  firstName: String,
+  middleName: String,
+  lastName: String,
+  phNumber: String,
+  IFSCCode: String,
+  bankName: String,
+
+
   createdAt: {
     type: Date,
     default: Date.now

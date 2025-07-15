@@ -36,6 +36,9 @@
         <th>Loan Type</th>
         <th>Purpose</th>
         <th>Business Stage</th>
+        <th>Phone Number</th>
+        <th>Bank Name</th>
+
       </tr>
     </thead>
     <tbody id="enquiry-table-body"></tbody>
@@ -53,6 +56,8 @@
             <td>${row.loanType}</td>
             <td>${row.purpose || '-'}</td>
             <td>${row.businessStage}</td>
+            <td>${row.phNumber}</td>
+            <td>${row.bankName}</td>
           </tr>
         `).join('');
       });
