@@ -75,6 +75,17 @@
   <form class="form-container" id="enquiry-form">
     <h2>New Enquiry</h2>
 
+
+<!-- Group Name (Autocomplete) -->
+<label for="group-name">Group Name</label>
+<input type="text" id="group-name" name="groupName" list="groupList" required />
+<datalist id="groupList"></datalist>
+
+<!-- Borrower Name -->
+<label for="borrower-name">Borrower Name</label>
+<input type="text" id="borrower-name" name="borrowerName" required />
+
+
     <!-- Source -->
     <h3>BDM Details</h3>
     <label for="source">Source</label>
@@ -206,6 +217,21 @@
         alert("Submission failed");
       });
     });
+
+    document.getElementById('group-name').addEventListener('input', async (e) => {
+  const query = e.target.value;
+  const res = await fetch(`/api/groups/search?q=${query}`);
+  const groups = await res.json();
+
+  const list = document.getElementById('groupList');
+  list.innerHTML = '';
+  groups.forEach(group => {
+    const option = document.createElement('option');
+    option.value = group.name;
+    list.appendChild(option);
+  });
+});
+
   </script>
 </body>
 </html>

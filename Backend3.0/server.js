@@ -19,6 +19,12 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('❌ MongoDB connection error:', err));
 
 // Routes
+
+const groupRoutes = require('./routes/group');
+app.use('/api/groups', groupRoutes);
+
+
+
 const enquiryRoutes = require('./routes/enquiry');
 app.use('/api/enquiry', enquiryRoutes);  // ✅ Correct route mount
 

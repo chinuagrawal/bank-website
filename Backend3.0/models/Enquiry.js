@@ -4,8 +4,7 @@ const enquirySchema = new mongoose.Schema({
   source: String,
   sourcingRm: String,
   businessStage: String,
-  groupName: { type: String, default: "" },
-  borrowerName: { type: String, default: "" },
+  
   loanAmount: { type: Number, default: 0 },
   loanApplicationDate: Date,
   loanApplicationNumber: String,
@@ -17,6 +16,9 @@ const enquirySchema = new mongoose.Schema({
   phNumber: String,
   IFSCCode: String,
   bankName: String,
+  groupName: String,
+  borrowerName: String,
+
 
 
   createdAt: {
