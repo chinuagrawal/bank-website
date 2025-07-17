@@ -15,8 +15,7 @@ router.get('/:loanApplicationNumber', async (req, res) => {
   }
 });
 
-
-
+// POST /api/enquiry - Submit a new enquiry
 router.post('/', async (req, res) => {
   const {
     source,
@@ -32,7 +31,9 @@ router.post('/', async (req, res) => {
     phNumber,
     IFSCCode,
     bankName,
-
+    groupName,
+    KycSelect,
+    email // ✅ Accept from frontend
   } = req.body;
 
   try {
@@ -50,6 +51,9 @@ router.post('/', async (req, res) => {
       phNumber,
       IFSCCode,
       bankName,
+      groupName,
+      KycSelect,
+      createdBy: email // ✅ Save into DB
     });
 
     await newEnquiry.save();
@@ -60,18 +64,28 @@ router.post('/', async (req, res) => {
   }
 });
 
-
-
-
-
-// GET /api/enquiry
+// GET /api/enquiry - Get all enquiries
 router.get('/', async (req, res) => {
   try {
     const enquiries = await Enquiry.find().sort({ createdAt: -1 });
     res.json(enquiries);
   } catch (err) {
-    console.error('🔥 Error in GET /api/enquiry:', err); // Add this
+    console.error('🔥 Error in GET /api/enquiry:', err);
     res.status(500).json({ message: 'Error fetching enquiries' });
+  }
+});
+
+// GET /api/enquiries/my-submissions?email=analyst@example.com
+router.get('/my-submissions', async (req, res) => {
+  const { email } = req.query;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  try {
+    const enquiries = await Enquiry.find({ createdBy: email }).sort({ createdAt: -1 });
+    res.json(enquiries);
+  } catch (err) {
+    console.error('Error fetching analyst submissions:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

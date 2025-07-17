@@ -206,7 +206,9 @@
 
 
     <button type="submit">Submit Enquiry</button>
+    <input type="hidden" id="email" value="lovish@gmail.com" />
   </form>
+
 
   <script>
     const sourceSelect = document.getElementById('source');
@@ -217,42 +219,53 @@
     });
 
     document.getElementById("enquiry-form").addEventListener("submit", function (e) {
-      e.preventDefault();
+  e.preventDefault();
 
-      const data = {
-        source: sourceSelect.value === 'Other' ? otherInput.value : sourceSelect.value,
-        sourcingRm: document.getElementById("sourcing-rm").value,
-        businessStage: document.getElementById("business-stage").value,
-        loanApplicationDate: document.getElementById("loan-application-date").value,
-        loanApplicationNumber: document.getElementById("loan-application-number").value,
-        loanType: document.getElementById("loan-type").value,
-        purpose: document.getElementById("purpose").value,
-        firstName: document.getElementById("first-name").value,
-        middleName: document.getElementById("middle-name").value,
-        lastName: document.getElementById("last-name").value,
-        phNumber: document.getElementById("ph-number").value,
-        IFSCCode: document.getElementById("IFSC-code").value,
-        bankName: document.getElementById("bank-name").value,
-        
+  const data = {
+    groupName: document.getElementById("groupName").value,
+    groupCode: document.getElementById("groupCode").value,
+    kycCode: document.getElementById("kycSelect").value,
+    userName: document.getElementById("userName").value,
+    aadharNumber: document.getElementById("aadharNumber").value,
+    panCard: document.getElementById("panCard").value,
 
-      };
+    source: sourceSelect.value === 'Other' ? otherInput.value : sourceSelect.value,
+    sourcingRm: document.getElementById("sourcing-rm").value,
+    businessStage: document.getElementById("business-stage").value,
+    loanApplicationDate: document.getElementById("loan-application-date").value,
+    loanApplicationNumber: document.getElementById("loan-application-number").value,
+    loanType: document.getElementById("loan-type").value,
+    purpose: document.getElementById("purpose").value,
 
-      fetch("http://localhost:3000/api/enquiry", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-      })
-      .then(res => res.json())
-      .then(result => {
-        alert(result.message);
-        document.getElementById("enquiry-form").reset();
-        otherInput.classList.add("hidden");
-      })
-      .catch(err => {
-        console.error("Error:", err);
-        alert("Submission failed");
-      });
-    });
+    firstName: document.getElementById("first-name").value,
+    middleName: document.getElementById("middle-name").value,
+    lastName: document.getElementById("last-name").value,
+    phNumber: document.getElementById("ph-number").value,
+
+    IFSCCode: document.getElementById("IFSC-code").value,
+    bankName: document.getElementById("bank-name").value,
+    email: document.getElementById("email").value  // ✅ Add this line
+    
+
+  };
+
+  fetch("http://localhost:3000/api/enquiry", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(result => {
+    alert(result.message);
+    document.getElementById("enquiry-form").reset();
+    otherInput.classList.add("hidden");
+  })
+  .catch(err => {
+    console.error("Error:", err);
+    alert("Submission failed");
+  });
+});
+
 
     document.getElementById('group-name').addEventListener('input', async (e) => {
   const query = e.target.value;

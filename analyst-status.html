@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analyst Approval Status</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: #333;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    .status-approved { color: green; }
+    .status-rejected { color: red; }
+    .status-pending { color: orange; }
+  </style>
+</head>
+<body>
+  <h1>My Enquiries - Approval Status</h1>
+  <table id="enquiryTable">
+    <thead>
+      <tr>
+        <th>Loan No.</th>
+        <th>Borrower</th>
+        <th>Group</th>
+        <th>Status</th>
+        <th>Rejected By</th>
+        <th>Comment</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadEnquiries() {
+      const res = await fetch('/api/enquiries/my-submissions'); // Endpoint returns submissions by current analyst
+      const enquiries = await res.json();
+      const tbody = document.querySelector('#enquiryTable tbody');
+      tbody.innerHTML = '';
+
+      enquiries.forEach(entry => {
+        const tr = document.createElement('tr');
+
+        const status = entry.approval.status;
+        const history = entry.approval.history || [];
+        const lastReject = history.reverse().find(h => h.status === 'rejected') || {};
+
+        tr.innerHTML = `
+          <td>${entry.loanNumber}</td>
+          <td>${entry.borrower}</td>
+          <td>${entry.groupName}</td>
+          <td class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</td>
+          <td>${lastReject.stage || '-'}</td>
+          <td>${lastReject.comment || '-'}</td>
+          <td><button onclick="viewDetails('${entry._id}')">View</button></td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    }
+
+    function viewDetails(id) {
+      window.location.href = `/enquiry-details.html?id=${id}`;
+    }
+
+    loadEnquiries();
+  </script>
+</body>
+</html>
