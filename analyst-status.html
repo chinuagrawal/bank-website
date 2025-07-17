@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analyst Approval Status</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Enquiries - Analyst</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -35,10 +35,15 @@
     .status-approved { color: green; }
     .status-rejected { color: red; }
     .status-pending { color: orange; }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
-  <h1>My Enquiries - Approval Status</h1>
+  <h1>My Submitted Enquiries - Status</h1>
   <table id="enquiryTable">
     <thead>
       <tr>
@@ -54,39 +59,57 @@
     <tbody></tbody>
   </table>
 
+  <p class="error" id="errorMsg"></p>
+
   <script>
-    async function loadEnquiries() {
-      const res = await fetch('/api/enquiries/my-submissions'); // Endpoint returns submissions by current analyst
+  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
+  const analystEmail = user.email;
+
+  async function loadEnquiries() {
+    try {
+      const res = await fetch('http://localhost:3000/api/enquiry/my-submissions?email=' + encodeURIComponent(analystEmail));
+      if (!res.ok) throw new Error("Failed to fetch enquiries");
+
       const enquiries = await res.json();
       const tbody = document.querySelector('#enquiryTable tbody');
       tbody.innerHTML = '';
 
+      if (enquiries.length === 0) {
+        document.getElementById("errorMsg").textContent = "No enquiries submitted by you.";
+        return;
+      }
+
       enquiries.forEach(entry => {
         const tr = document.createElement('tr');
-
-        const status = entry.approval.status;
-        const history = entry.approval.history || [];
+        const status = entry.approval?.status || 'pending';
+        const history = [...(entry.approval?.history || [])];
         const lastReject = history.reverse().find(h => h.status === 'rejected') || {};
 
         tr.innerHTML = `
-          <td>${entry.loanNumber}</td>
-          <td>${entry.borrower}</td>
-          <td>${entry.groupName}</td>
+          <td>${entry.loanApplicationNumber || '-'}</td>
+          <td>${entry.firstName || ''} ${entry.middleName || ''} ${entry.lastName || ''}</td>
+          <td>${entry.groupName || '-'}</td>
           <td class="status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</td>
           <td>${lastReject.stage || '-'}</td>
           <td>${lastReject.comment || '-'}</td>
           <td><button onclick="viewDetails('${entry._id}')">View</button></td>
         `;
-
         tbody.appendChild(tr);
       });
-    }
 
-    function viewDetails(id) {
-      window.location.href = `/enquiry-details.html?id=${id}`;
+    } catch (err) {
+      console.error("Error fetching:", err);
+      document.getElementById("errorMsg").textContent =
+        "Something went wrong while fetching enquiries: " + err.message;
     }
+  }
 
-    loadEnquiries();
-  </script>
+  function viewDetails(id) {
+    window.location.href = `/enquiry-details.html?id=${id}`;
+  }
+
+  loadEnquiries();
+</script>
+
 </body>
 </html>

@@ -96,8 +96,17 @@
         if (res.ok) {
           alert("Login successful!");
           localStorage.setItem("user", JSON.stringify(data.user));
-          if (data.user.role === "admin") {
-            window.location.href = "admin.html";
+
+            localStorage.setItem("user", JSON.stringify(data.user));
+
+  // ✅ Also store in sessionStorage for further usage (like enquiry submissions)
+  sessionStorage.setItem("user", JSON.stringify({
+    email: data.user.email,
+    role: data.user.role,
+    name: data.user.firstName
+  }));
+          if (data.user.role === "team-manager") {
+            window.location.href = "team-manager.html";
           } else {
             window.location.href = "analyst.html";
           }
@@ -109,6 +118,9 @@
         alert("Server error");
       }
     });
+
+
+
   </script>
 </body>
 </html>

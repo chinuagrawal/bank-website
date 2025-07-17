@@ -206,11 +206,16 @@
 
 
     <button type="submit">Submit Enquiry</button>
-    <input type="hidden" id="email" value="lovish@gmail.com" />
+    <input type="hidden" id="email" value="analyst@example.com" />
   </form>
 
 
   <script>
+
+    const currentUser = JSON.parse(sessionStorage.getItem('user') || '{}');
+const userEmail = currentUser.email || '';
+const userRole = currentUser.role || '';
+
     const sourceSelect = document.getElementById('source');
     const otherInput = document.getElementById('source-other');
 
@@ -244,7 +249,10 @@
 
     IFSCCode: document.getElementById("IFSC-code").value,
     bankName: document.getElementById("bank-name").value,
-    email: document.getElementById("email").value  // ✅ Add this line
+    createdBy: userEmail,
+    createdByRole: userRole, // optional, useful if you want to track who filled it
+
+
     
 
   };
@@ -262,6 +270,7 @@
   })
   .catch(err => {
     console.error("Error:", err);
+    
     alert("Submission failed");
   });
 });

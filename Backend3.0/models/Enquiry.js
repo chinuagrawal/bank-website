@@ -8,9 +8,13 @@ const enquirySchema = new mongoose.Schema({
   userName: String,
   aadharNumber: String,
   panCard: String,
-
-
-  createdBy: String,
+  createdBy: {
+  type: String,
+  required: true
+},
+createdByRole: {
+  type: String
+},
 
   // Loan & Sourcing Info
   source: String,
