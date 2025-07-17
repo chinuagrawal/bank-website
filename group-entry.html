@@ -99,14 +99,7 @@
       <button type="submit">Submit Group</button>
     </form>
 
-    <h3>Existing Groups</h3>
-    <table id="groupTable">
-      <thead>
-        <tr><th>Group Name</th><th>Code</th><th>KYC Details</th></tr>
-
-      </thead>
-      <tbody></tbody>
-    </table>
+   
   <br>
 
   <h2>Add KYC to Existing Group</h2>
@@ -128,8 +121,31 @@
 
 <button type="submit">Add KYC</button>
 </form>
-</div>
 
+ <h3>Existing Groups</h3>
+    <table id="groupTable">
+      <thead>
+        <tr><th>Group Name</th><th>Code</th><th>KYC code</th></tr>
+
+      </thead>
+      <tbody></tbody>
+    </table>
+    <br>
+<h3>All KYC Entries</h3>
+<table id="kycDetailTable">
+  <thead>
+    <tr>
+      <th>KYC Code</th>
+      <th>User Name</th>
+      <th>Aadhar</th>
+      <th>PAN</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
+</div>
  <script>
   const kycs = [];
 
@@ -209,35 +225,29 @@
     loadGroupDropdown();
   });
 
-  async function loadGroups() {
-    const res = await fetch("http://localhost:3000/api/groups/group-names");
-    const data = await res.json();
-    const table = document.querySelector("#groupTable tbody");
+ async function loadGroups() {
+  const res = await fetch("http://localhost:3000/api/groups/group-names");
+  const data = await res.json();
+  const table = document.querySelector("#groupTable tbody");
 
-    const rows = await Promise.all(data.map(async g => {
-      const kycRes = await fetch(`http://localhost:3000/api/groups/kyc/${g.groupCode}`);
-      const kycList = await kycRes.json();
+  const rows = await Promise.all(data.map(async g => {
+    const kycRes = await fetch(`http://localhost:3000/api/groups/kyc/${g.groupCode}`);
+    const kycList = await kycRes.json();
 
-      const kycsHTML = kycList.map(k => `
-  <div>
-    <strong>${k.kycCode}</strong> - ${k.userName || ''}<br/>
-    Aadhar: ${k.aadharNumber || ''}, PAN: ${k.panCard || ''}
-    <button onclick="editKYC('${k._id}', '${k.kycCode}', '${k.userName}', '${k.aadharNumber}', '${k.panCard}')">Edit</button>
-  </div>
-`).join('');
+    const kycsHTML = kycList.map(k => `<span>${k.kycCode}</span>`).join(', ');
 
+    return `
+      <tr>
+        <td>${g.groupName}</td>
+        <td>${g.groupCode}</td>
+        <td>${kycsHTML}</td>
+      </tr>
+    `;
+  }));
 
-      return `
-        <tr>
-          <td>${g.groupName}</td>
-          <td>${g.groupCode}</td>
-          <td>${kycsHTML}</td>
-        </tr>
-      `;
-    }));
+  table.innerHTML = rows.join('');
+}
 
-    table.innerHTML = rows.join('');
-  }
 
   async function loadGroupDropdown() {
     const res = await fetch("http://localhost:3000/api/groups/group-names");
@@ -278,35 +288,94 @@
   }
 });
 
+let editKYCId = '';
 function editKYC(id, code, name, aadhar, pan) {
-  const newName = prompt("Enter new name:", name);
-  const newAadhar = prompt("Enter new Aadhar number:", aadhar);
-  const newPan = prompt("Enter new PAN card:", pan);
+  editKYCId = id;
+  document.getElementById('editUserName').value = name || '';
+  document.getElementById('editAadhar').value = aadhar || '';
+  document.getElementById('editPan').value = pan || '';
+  document.getElementById('editModal').style.display = 'flex';
+}
 
-  if (!newName || !newAadhar || !newPan) return alert("All fields required");
 
-  fetch(`http://localhost:3000/api/groups/kyc/${id}`, {
-    method: "PUT",
+async function loadAllKycs() {
+  const res = await fetch("http://localhost:3000/api/groups/all-kycs");
+  const data = await res.json();
+
+  const table = document.querySelector("#kycDetailTable tbody");
+
+  const rows = data.map(k => `
+    <tr>
+      <td>${k.kycCode}</td>
+      <td>${k.userName || ''}</td>
+      <td>${k.aadharNumber || ''}</td>
+      <td>${k.panCard || ''}</td>
+      <td><button onclick="editKYC('${k._id}', '${k.kycCode}', '${k.userName}', '${k.aadharNumber}', '${k.panCard}')">Edit</button></td>
+    </tr>
+  `).join('');
+
+  table.innerHTML = rows;
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').style.display = 'none';
+  editKYCId = '';
+}
+
+async function saveKYCEdit() {
+  const newName = document.getElementById('editUserName').value.trim();
+  const newAadhar = document.getElementById('editAadhar').value.trim();
+  const newPan = document.getElementById('editPan').value.trim();
+
+  if (!newName || !newAadhar || !newPan) {
+    alert('All fields are required');
+    return;
+  }
+
+  const res = await fetch(`http://localhost:3000/api/groups/kyc/${editKYCId}`, {
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      userName: newName,
-      aadharNumber: newAadhar,
-      panCard: newPan
-    })
-  })
-    .then(res => res.json())
-    .then(result => {
-      alert(result.message);
-      loadGroups();
-    })
-    .catch(() => alert("Failed to update KYC"));
+    body: JSON.stringify({ userName: newName, aadharNumber: newAadhar, panCard: newPan })
+  });
+
+  const result = await res.json();
+  if (res.ok) {
+    alert('Saved successfully');
+    closeEditModal();
+    loadGroups();
+    loadAllKycs();
+  } else {
+    alert(result.message || 'Failed to update');
+  }
 }
 
 
   // Initial load
   loadGroups();
   loadGroupDropdown();
+  loadAllKycs();
 </script>
+
+
+
+
+
+<div id="editModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background-color:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index:1000;">
+  <div style="background:#fff; padding:20px; border-radius:10px; width:90%; max-width:400px; box-shadow:0 2px 10px rgba(0,0,0,0.2);">
+    <h3 style="color:#4a148c;">Edit KYC Entry</h3>
+    <label>User Name</label>
+    <input type="text" id="editUserName" style="width:100%; padding:8px; margin-bottom:10px;" />
+    <label>Aadhar Number</label>
+    <input type="text" id="editAadhar" style="width:100%; padding:8px; margin-bottom:10px;" />
+    <label>PAN Card</label>
+    <input type="text" id="editPan" style="width:100%; padding:8px;" />
+    <div style="text-align:right; margin-top:15px;">
+      <button onclick="closeEditModal()" style="margin-right:10px;">Cancel</button>
+      <button onclick="saveKYCEdit()">OK</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

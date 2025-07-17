@@ -11,7 +11,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 200vh;
+      height: 300vh;
     }
 
     .form-container {
@@ -69,25 +69,61 @@
       margin: 30px 0 10px;
       color: #4a148c;
     }
+
+    .autocomplete-list {
+  position: absolute;
+  background: white;
+  border: 1px solid #ccc;
+  border-top: none;
+  z-index: 1000;
+  width: 35%;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 0 0 8px 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  display: none;
+}
+
+.autocomplete-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.autocomplete-item:hover {
+  background-color: #f0eafc;
+}
+
   </style>
 </head>
 <body>
   <form class="form-container" id="enquiry-form">
     <h2>New Enquiry</h2>
 
+ <h3>Borrower</h3><br>
+<label for="groupName">Group Name</label>
+<input type="text" id="groupName" autocomplete="off" placeholder="Start typing group name" required>
+<div id="groupDropdown" class="autocomplete-list"></div>
 
-<!-- Group Name (Autocomplete) -->
-<label for="group-name">Group Name</label>
-<input type="text" id="group-name" name="groupName" list="groupList" required />
-<datalist id="groupList"></datalist>
 
-<!-- Borrower Name -->
-<label for="borrower-name">Borrower Name</label>
-<input type="text" id="borrower-name" name="borrowerName" required />
+<label for="groupCode">Group Code</label>
+<input type="text" id="groupCode" readonly>
+
+<label for="kycSelect">Select KYC Code</label>
+<select id="kycSelect"></select>
+
+<label>User Name</label>
+<input type="text" id="userName" readonly>
+
+<label>Aadhar Number</label>
+<input type="text" id="aadharNumber" readonly>
+
+<label>PAN Card</label>
+<input type="text" id="panCard" readonly>
+
 
 
     <!-- Source -->
-    <h3>BDM Details</h3>
+    <h3>BDM Details</h3><br>
     <label for="source">Source</label>
     <select id="source" name="source" required>
       <option value="" disabled selected>Select Source</option>
@@ -120,7 +156,7 @@
     </select>
 
     <!-- Loan Details -->
-    <h3>Loan Details</h3>
+    <h3>Loan Details</h3><br>
 
     <!-- Loan Application Date -->
     <label for="loan-application-date">Loan Application Date</label>
@@ -233,5 +269,104 @@
 });
 
   </script>
+<script>
+let groupMap = {};  // groupName -> groupCode
+let kycMap = {};    // kycCode -> full KYC details
+
+const groupInput = document.getElementById('groupName');
+const groupCodeInput = document.getElementById('groupCode');
+const dropdown = document.getElementById('groupDropdown');
+
+// 👇 Fetch matching groups as user types
+groupInput.addEventListener('input', async function () {
+  const query = this.value.trim();
+  if (query.length < 2) {
+    dropdown.style.display = 'none';
+    return;
+  }
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/groups/search?q=${encodeURIComponent(query)}`);
+    const groups = await res.json();
+
+    dropdown.innerHTML = '';
+    groupMap = {};
+
+    if (groups.length === 0) {
+      dropdown.style.display = 'none';
+      return;
+    }
+
+    groups.forEach(g => {
+      const item = document.createElement('div');
+      item.className = 'autocomplete-item';
+      item.textContent = g.groupName;
+      dropdown.appendChild(item);
+
+      groupMap[g.groupName] = g.groupCode;
+
+      item.addEventListener('click', () => {
+        groupInput.value = g.groupName;
+        groupCodeInput.value = g.groupCode;
+        dropdown.innerHTML = '';
+        dropdown.style.display = 'none';
+        loadKYCForGroup(g.groupCode);
+      });
+    });
+
+    dropdown.style.display = 'block';
+
+  } catch (err) {
+    console.error('Error fetching groups:', err);
+    dropdown.style.display = 'none';
+  }
+});
+
+// 👇 When user selects a group name (either typed or from dropdown)
+function loadKYCForGroup(groupCode) {
+  fetch(`http://localhost:3000/api/groups/kyc/${groupCode}`)
+    .then(res => res.json())
+    .then(kycs => {
+      const kycSelect = document.getElementById('kycSelect');
+      kycSelect.innerHTML = `<option value="">Select</option>`;
+      kycMap = {};
+
+      kycs.forEach(k => {
+        const option = document.createElement('option');
+        option.value = k.kycCode;
+        option.textContent = k.kycCode;
+        kycSelect.appendChild(option);
+
+        kycMap[k.kycCode] = {
+          userName: k.userName,
+          aadharNumber: k.aadharNumber,
+          panCard: k.panCard
+        };
+      });
+    })
+    .catch(err => {
+      console.error('Error fetching KYC:', err);
+    });
+}
+
+
+// 👇 When a KYC Code is selected, autofill details
+document.getElementById('kycSelect').addEventListener('change', function () {
+  const kyc = kycMap[this.value];
+  document.getElementById('userName').value = kyc?.userName || '';
+  document.getElementById('aadharNumber').value = kyc?.aadharNumber || '';
+  document.getElementById('panCard').value = kyc?.panCard || '';
+});
+
+// 👇 Hide dropdown when clicking outside
+document.addEventListener('click', function (e) {
+  if (!dropdown.contains(e.target) && e.target !== groupInput) {
+    dropdown.style.display = 'none';
+  }
+});
+</script>
+
+
+
 </body>
 </html>

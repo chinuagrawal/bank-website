@@ -5,14 +5,21 @@ const KYC = require('../models/KYC');
 
 // 🔍 Search group names by partial match
 router.get('/search', async (req, res) => {
-  const q = req.query.q || '';
+  const q = req.query.q;
+  if (!q) return res.json([]);
+
   try {
-    const results = await Group.find({ groupName: { $regex: q, $options: 'i' } }).limit(10);
+    const results = await Group.find({
+      groupName: { $regex: q, $options: 'i' } // case-insensitive match
+    }).limit(10);
+
     res.json(results);
   } catch (err) {
-    res.status(500).json({ message: 'Error searching groups' });
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
+
 
 // ➕ Add a new group
 router.post('/group', async (req, res) => {
@@ -74,6 +81,15 @@ router.put('/kyc/:id', async (req, res) => {
     res.json({ message: 'KYC updated' });
   } catch (err) {
     res.status(500).json({ message: 'Error updating KYC' });
+  }
+});
+
+router.get('/all-kycs', async (req, res) => {
+  try {
+    const allKycs = await KYC.find(); // You can also add .sort({ kycCode: 1 }) if needed
+    res.json(allKycs);
+  } catch (err) {
+    res.status(500).json({ message: 'Error fetching all KYC data' });
   }
 });
 
