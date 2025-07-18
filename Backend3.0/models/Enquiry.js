@@ -38,10 +38,26 @@ createdByRole: {
 
   // Approval Workflow Fields
   status: {
-    type: String,
-    enum: ['pending', 'approved', 'rejected'],
-    default: 'pending'
+  teamLead: {
+   approved: { type: Boolean, default: false },
+rejected: { type: Boolean, default: false },
+comment: { type: String, default: '' },
+    date: Date
   },
+  teamManager: {
+    approved: Boolean,
+    rejected: Boolean,
+    comment: String,
+    date: Date
+  },
+  roshan: {
+    approved: Boolean,
+    rejected: Boolean,
+    comment: String,
+    date: Date
+  }
+},
+
   rejectionReason: String,
   rejectedBy: String, // 'Team Lead', 'Team Manager', 'Roshan'
 

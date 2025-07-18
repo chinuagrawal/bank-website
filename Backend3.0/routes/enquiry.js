@@ -87,5 +87,92 @@ router.get('/', async (req, res) => {
 });
 
 
+// Approve by Team Lead
+// Approve by Team Lead
+router.post('/approve/team-lead/:id', async (req, res) => {
+  try {
+    const update = {
+      $set: {
+        'status.teamLead.approved': true,
+        'status.teamLead.date': new Date(),
+        rejectedBy: null,
+        rejectionReason: null
+      },
+      $push: {
+        approvalHistory: {
+          level: 'Team Lead',
+          status: 'approved',
+          comment: '',
+          date: new Date()
+        }
+      }
+    };
+
+    const result = await Enquiry.findByIdAndUpdate(req.params.id, update, { new: true });
+
+    if (!result) return res.status(404).json({ message: 'Enquiry not found' });
+
+    res.json({ message: 'Approved by Team Lead' });
+  } catch (err) {
+    console.error('🔥 Error in Team Lead approval:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+// Reject by Team Lead
+// POST /api/enquiry/reject
+router.post('/reject/team-lead/:id', async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+
+  try {
+    const update = {
+      $set: {
+        'status.teamLead.rejected': true,
+        'status.teamLead.comment': reason,
+        'status.teamLead.date': new Date(),
+        rejectionReason: reason,
+        rejectedBy: 'Team Lead'
+      },
+      $push: {
+        approvalHistory: {
+          level: 'Team Lead',
+          status: 'rejected',
+          comment: reason,
+          date: new Date()
+        }
+      }
+    };
+
+    const result = await Enquiry.findByIdAndUpdate(id, update, { new: true });
+
+    if (!result) return res.status(404).json({ message: "Enquiry not found" });
+
+    res.json({ message: "Rejected by Team Lead" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error updating rejection" });
+  }
+});
+
+
+// GET /api/enquiry/pending/team-lead
+// GET /api/enquiry/pending/team-lead
+router.get('/pending/team-lead', async (req, res) => {
+  try {
+    const pendingEnquiries = await Enquiry.find({
+      'status.approvedByTeamLead': { $ne: true },
+      'status.teamLead.rejected': { $ne: true }
+    }).sort({ createdAt: -1 });
+
+    res.json(pendingEnquiries);
+  } catch (err) {
+    console.error('🔥 Error in GET /pending/team-lead:', err);
+    res.status(500).json({ message: 'Error fetching pending enquiries' });
+  }
+});
+
+
 
 module.exports = router;
